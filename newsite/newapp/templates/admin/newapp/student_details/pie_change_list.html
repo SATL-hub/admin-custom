@@ -1,0 +1,71 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+{{ block.super }}
+
+<h1>Department Marks Pie Chart</h1>
+<canvas id="pieChart" width="500" height="300"></canvas>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safely render data as JSON -->
+{{ departments|json_script:"departments" }}
+{{ marks|json_script:"marks" }}
+
+<script>
+    // Get the canvas context
+    const ctx = document.getElementById('pieChart').getContext('2d');
+
+    // Fetch the safely embedded data
+    const departments = JSON.parse(document.getElementById('departments').textContent);
+    const marks = JSON.parse(document.getElementById('marks').textContent);
+
+    // Prepare the data for the pie chart
+    const data = {
+        labels: departments, // Labels for the pie slices
+        datasets: [{
+            label: 'Average Marks',
+            data: marks, // Data for each slice (average marks)
+            backgroundColor: [ // Colors for each slice
+                'rgba(75, 192, 192, 0.5)', 
+                'rgba(0, 255, 0, 0.5)',
+                'rgba(54, 162, 235, 0.5)', 
+                'rgba(255, 0, 0, 0.5)',
+                'rgba(153, 102, 255, 0.5)',
+                'rgba(0, 0, 255, 0.5)'
+            ], 
+            borderColor: 'rgba(0, 0, 0, 0.1)', // Border color (optional)
+            borderWidth: 1 // Border width (optional)
+        }]
+    };
+
+    // Configure the chart with reduced radius
+    const config = {
+        type: 'pie', // Pie chart type
+        data: data,  // Data for the pie chart
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top', // Position of the legend
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ": " + tooltipItem.raw + " Marks"; // Tooltip text
+                        }
+                    }
+                }
+            },
+            // Adjust the radius to change the size of the pie chart
+            //cutout:'50%',
+            radius: '50%',  // Set to a smaller percentage to reduce the radius
+        }
+    };
+
+    // Render the chart
+    new Chart(ctx, config);
+</script>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+
+
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+{{ block.super }}
+
+<h1>Department Marks Bar Chart</h1>
+<canvas id="barChart" width="100" height="50"></canvas>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safely render data as JSON -->
+{{ departments|json_script:"departments" }}
+{{ marks|json_script:"marks" }}
+
+<script>
+    // Get the canvas context
+    const ctx = document.getElementById('barChart').getContext('2d');
+
+    // Fetch the safely embedded data
+    const departments = JSON.parse(document.getElementById('departments').textContent);
+    const marks = JSON.parse(document.getElementById('marks').textContent);
+    
+    
+
+    // Prepare the data for the bar chart
+    const data = {
+        labels: departments, // X-axis labels (department names)
+        datasets: [{
+            label: 'Average Marks',
+            data: marks, // Y-axis data (average marks)
+            backgroundColor: 'rgba(0, 0, 255, 0.2)', // Bar color
+            borderColor: 'rgba(75, 192, 192, 1)', // Border color of the bars
+            borderWidth: 1 // Border width
+        }]
+    };
+
+    // Configure the chart
+    const config = {
+        type: 'bar', // Set the chart type to "bar"
+        data: data,
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Departments' // X-axis title
+                    }
+                },
+                y: {
+                    beginAtZero: true, // Start the y-axis at 0
+                    
+                    min: 10,  // Set the minimum value
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: 'Marks' // Y-axis title
+                    }
+                }
+            }
+        }
+    };
+    // Render the chart
+    new Chart(ctx, config);
+</script>
+{% endblock %}

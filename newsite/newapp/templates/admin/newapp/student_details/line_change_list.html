@@ -1,0 +1,80 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+{{ block.super }}
+
+<h1>Department Marks Line Chart</h1>
+<canvas id="lineChart" width="800" height="400"></canvas>
+
+<!-- Include Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safely render data as JSON -->
+{{ departments|json_script:"departments" }}
+{{ marks|json_script:"marks" }}
+
+<script>
+    // Get the canvas context
+    const ctx = document.getElementById('lineChart').getContext('2d');
+
+    // Fetch the safely embedded data
+    const departments = JSON.parse(document.getElementById('departments').textContent);
+    const marks = JSON.parse(document.getElementById('marks').textContent);
+
+    // Prepare the data for the line chart
+    const data = {
+        labels: departments, // Departments as X-axis labels
+        datasets: [{
+            label: 'Average Marks',   // Line label
+            data: marks,              // Marks as Y-axis data
+            fill: false,              // Set to false to avoid filling below the line
+            borderColor: 'rgba(75, 192, 192, 1)', // Line color
+            tension: 0.1,             // Curve smoothness (0 = sharp, 1 = smooth)
+            pointBackgroundColor: 'rgba(75, 192, 192, 1)', // Point color
+            borderWidth: 2,           // Line thickness
+            pointRadius: 5,           // Point size
+            pointHoverRadius: 7,      // Hover size
+        }]
+    };
+
+    // Configure the chart options
+    const config = {
+        type: 'line', // Line chart type
+        data: data,   // Data for the line chart
+        options: {
+            responsive: true,      // Make chart responsive
+            plugins: {
+                legend: {
+                    position: 'top', // Legend position
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            return tooltipItem.label + ": " + tooltipItem.raw + " Marks"; // Tooltip customization
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Departments'  // X-axis label (departments)
+                    }
+                },
+                y: {
+                    beginAtZero: true,  // Start the Y-axis at 0
+                    title: {
+                        display: true,
+                        text: 'Marks'      // Y-axis label (marks)
+                    }
+                }
+            }
+        }
+    };
+
+    // Render the chart
+    new Chart(ctx, config);
+</script>
+
+{% endblock %}
